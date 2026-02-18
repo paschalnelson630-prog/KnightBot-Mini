@@ -72,12 +72,16 @@ module.exports = {
         }, { quoted: msg });
       }
 
-      // Get video: try Yupra first, then Okatsu fallback
+      // Get video: try EliteProTech first, then Yupra, then Okatsu fallback
       let videoData;
       try {
-        videoData = await APIs.getYupraVideoByUrl(videoUrl);
+        videoData = await APIs.getEliteProTechVideoByUrl(videoUrl);
       } catch (e1) {
-        videoData = await APIs.getOkatsuVideoByUrl(videoUrl);
+        try {
+          videoData = await APIs.getYupraVideoByUrl(videoUrl);
+        } catch (e2) {
+          videoData = await APIs.getOkatsuVideoByUrl(videoUrl);
+        }
       }
 
       // Send video directly using the download URL

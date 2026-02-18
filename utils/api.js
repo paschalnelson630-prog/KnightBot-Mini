@@ -318,6 +318,41 @@ const APIs = {
     throw new Error('EliteProTech ytdown returned no download');
   },
   
+    getEliteProTechVideoByUrl: async (youtubeUrl) => {
+    const AXIOS_DEFAULTS = {
+      timeout: 60000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*'
+      }
+    };
+    
+    const tryRequest = async (getter, attempts = 3) => {
+      let lastError;
+      for (let attempt = 1; attempt <= attempts; attempt++) {
+        try {
+          return await getter();
+        } catch (err) {
+          lastError = err;
+          if (attempt < attempts) {
+            await new Promise(r => setTimeout(r, 1000 * attempt));
+          }
+        }
+      }
+      throw lastError;
+    };
+    
+    const apiUrl = `https://eliteprotech-apis.zone.id/ytdown?url=${encodeURIComponent(youtubeUrl)}&format=mp4`;
+    const res = await tryRequest(() => axios.get(apiUrl, AXIOS_DEFAULTS));
+    if (res?.data?.success && res?.data?.downloadURL) {
+      return {
+        download: res.data.downloadURL,
+        title: res.data.title
+      };
+    }
+    throw new Error('EliteProTech ytdown video returned no download');
+  },
+  
   // Video Download APIs
   getYupraVideoByUrl: async (youtubeUrl) => {
     const AXIOS_DEFAULTS = {
